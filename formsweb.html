@@ -1,58 +1,171 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Cadastro de Clientes</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    input, select, button { margin: 5px 0; display: block; width: 300px; }
-    #listBoxClientes { height: 100px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Cadastro de Clientes</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        input, select, button {
+            margin: 5px 0;
+            display: block;
+            width: 300px;
+            padding: 5px;
+        }
+
+        #listBoxClientes {
+            height: 100px;
+        }
+
+        button {
+            cursor: pointer;
+        }
+    </style>
 </head>
+
 <body>
-  <h2>Cadastro de Clientes</h2>
 
-  <label for="listBoxClientes">Clientes:</label>
-  <select id="listBoxClientes" size="5"></select>
-  <button onclick="buscarCliente()">Buscar Cliente</button>
+    <h2>Cadastro de Clientes</h2>
 
-  <h3>Dados do Cliente</h3>
-  <input type="text" id="txtNome" placeholder="Nome">
-  <input type="text" id="txtEndereco" placeholder="Endereço">
-  <input type="text" id="txtTelefone" placeholder="Telefone">
-  <input type="email" id="txtEmail" placeholder="Email">
+    <label for="listBoxClientes">Clientes:</label>
+    <select id="listBoxClientes" size="5"></select>
 
-  <script>
-    // Simulação de banco de dados local
-    const clientes = [
-      { id: 1, nome: "João Silva", endereco: "Rua A", telefone: "123456", email: "joao@gmail.com" },
-      { id: 2, nome: "Maria Oliveira", endereco: "Rua B", telefone: "654321", email: "maria@gmail.com" }
-    ];
+    <button onclick="buscarCliente()">Buscar Cliente</button>
 
-    // Salvar no localStorage
-    localStorage.setItem("clientes", JSON.stringify(clientes));
+    <h3>Dados do Cliente</h3>
 
-    // Preencher lista de clientes
-    const listBox = document.getElementById("listBoxClientes");
-    const listaClientes = JSON.parse(localStorage.getItem("clientes"));
-    listaClientes.forEach(cliente => {
-      const option = document.createElement("option");
-      option.value = cliente.id;
-      option.textContent = `${cliente.id} - ${cliente.nome}`;
-      listBox.appendChild(option);
-    });
+    <input type="text" id="txtNome" placeholder="Nome">
+    <input type="text" id="txtEndereco" placeholder="Endereço">
+    <input type="text" id="txtTelefone" placeholder="Telefone">
+    <input type="email" id="txtEmail" placeholder="Email">
 
-    // Buscar cliente e preencher formulário
-    function buscarCliente() {
-      const selectedId = parseInt(listBox.value);
-      const cliente = listaClientes.find(c => c.id === selectedId);
-      if (cliente) {
-        document.getElementById("txtNome").value = cliente.nome;
-        document.getElementById("txtEndereco").value = cliente.endereco;
-        document.getElementById("txtTelefone").value = cliente.telefone;
-        document.getElementById("txtEmail").value = cliente.email;
-      }
-    }
-  </script>
+    <button onclick="incluirCliente()">Incluir Cliente</button>
+    <button onclick="alterarCliente()">Alterar Cliente</button>
+
+    <script>
+
+        // Carregar clientes do localStorage
+        let clientes = JSON.parse(localStorage.getItem("clientes")) || [
+            { id: 1, nome: "João Silva", endereco: "Rua A", telefone: "123456", email: "joao@gmail.com" },
+            { id: 2, nome: "Maria Oliveira", endereco: "Rua B", telefone: "654321", email: "maria@gmail.com" }
+        ];
+
+        // Salvar os clientes
+        function salvarClientes() {
+            localStorage.setItem("clientes", JSON.stringify(clientes));
+        }
+
+        // Atualizar a lista de clientes
+        function atualizarLista() {
+            const listBox = document.getElementById("listBoxClientes");
+
+            listBox.innerHTML = "";
+
+            clientes.forEach(cliente => {
+                const option = document.createElement("option");
+
+                option.value = cliente.id;
+                option.textContent = cliente.id + " - " + cliente.nome;
+
+                listBox.appendChild(option);
+            });
+        }
+
+        // Buscar cliente selecionado
+        function buscarCliente() {
+            const selectedId = parseInt(document.getElementById("listBoxClientes").value);
+
+            const cliente = clientes.find(c => c.id === selectedId);
+
+            if (cliente) {
+                document.getElementById("txtNome").value = cliente.nome;
+                document.getElementById("txtEndereco").value = cliente.endereco;
+                document.getElementById("txtTelefone").value = cliente.telefone;
+                document.getElementById("txtEmail").value = cliente.email;
+            }
+        }
+
+        // Verificar se todos os campos estão preenchidos
+        function validarCampos() {
+            const nome = document.getElementById("txtNome").value.trim();
+            const endereco = document.getElementById("txtEndereco").value.trim();
+            const telefone = document.getElementById("txtTelefone").value.trim();
+            const email = document.getElementById("txtEmail").value.trim();
+
+            if (nome === "" || endereco === "" || telefone === "" || email === "") {
+                alert("Preencha todos os campos!");
+                return false;
+            }
+
+            return true;
+        }
+
+        // Incluir novo cliente
+        function incluirCliente() {
+
+            if (!validarCampos()) {
+                return;
+            }
+
+            const novoId = clientes.length > 0
+                ? Math.max(...clientes.map(c => c.id)) + 1
+                : 1;
+
+            const novoCliente = {
+                id: novoId,
+                nome: document.getElementById("txtNome").value.trim(),
+                endereco: document.getElementById("txtEndereco").value.trim(),
+                telefone: document.getElementById("txtTelefone").value.trim(),
+                email: document.getElementById("txtEmail").value.trim()
+            };
+
+            clientes.push(novoCliente);
+
+            salvarClientes();
+            atualizarLista();
+
+            alert("Cliente incluído com sucesso!");
+        }
+
+        // Alterar cliente selecionado
+        function alterarCliente() {
+
+            if (!validarCampos()) {
+                return;
+            }
+
+            const selectedId = parseInt(document.getElementById("listBoxClientes").value);
+
+            const cliente = clientes.find(c => c.id === selectedId);
+
+            if (cliente) {
+
+                cliente.nome = document.getElementById("txtNome").value.trim();
+                cliente.endereco = document.getElementById("txtEndereco").value.trim();
+                cliente.telefone = document.getElementById("txtTelefone").value.trim();
+                cliente.email = document.getElementById("txtEmail").value.trim();
+
+                salvarClientes();
+                atualizarLista();
+
+                alert("Cliente alterado com sucesso!");
+
+            } else {
+                alert("Selecione um cliente para alterar!");
+            }
+        }
+
+        // Carregar lista ao abrir a página
+        salvarClientes();
+        atualizarLista();
+
+    </script>
+
 </body>
 </html>
+
