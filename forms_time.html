@@ -1,1 +1,40 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Qual o seu Time do Coração?</title>
+</head>
+
+<body>
+
+    <h1>Qual o seu Time do Coração?</h1>
+
+    <form onsubmit="enviarTime(event)">
+
+        <select id="time">
+            <option value="Botafogo">Botafogo</option>
+            <option value="Flamengo">Flamengo</option>
+            <option value="Fluminense">Fluminense</option>
+            <option value="Vasco da Gama">Vasco da Gama</option>
+        </select>
+
+        <button type="submit">Enviar</button>
+        <button type="reset">Cancelar</button>
+
+    </form>
+
+    <script>
+
+        function enviarTime(event) {
+            event.preventDefault();
+
+            let timeEscolhido = document.getElementById("time").value;
+
+            alert("Seu time do coração é: " + timeEscolhido);
+        }
+
+    </script>
+
+</body>
+</html>
