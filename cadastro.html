@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Clientes</title>
+</head>
+<body>
+
+    <h1>Cadastro de Clientes</h1>
+
+    <label>Nome:</label><br>
+    <input type="text" id="nome"><br><br>
+
+    <label>Email:</label><br>
+    <input type="email" id="email"><br><br>
+
+    <button onclick="incluir_cliente()">Cadastrar</button>
+    <button onclick="limpar_campos()">Limpar</button>
+
+    <hr>
+
+    <h2>Buscar Cliente</h2>
+
+    <input type="text" id="busca"
+        placeholder="Digite o nome ou ID">
+
+    <button onclick="buscar_cliente()">Buscar</button>
+
+    <h2>Clientes cadastrados</h2>
+
+    <select id="lista" size="5"
+        onchange="selecionar_cliente()">
+    </select>
+
+    <br><br>
+
+    <button onclick="listar_clientes()">Atualizar Lista</button>
+    <button onclick="salvar_cliente()">Salvar JSON</button>
+
+    <script>
+
+        class Cliente {
+
+            constructor(id, nome, email) {
+                this.id = id;
+                this.nome = nome;
+                this.email = email;
+            }
+
+            toJSON() {
+                return {
+                    id: this.id,
+                    nome: this.nome,
+                    email: this.email
+                };
+            }
+        }
+
+        let clientes = [];
+        let proximo_id = 1;
+
+        function incluir_cliente() {
+
+            let nome = document.getElementById("nome").value;
+            let email = document.getElementById("email").value;
+
+            if (nome == "" || email == "") {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            let cliente = new Cliente(proximo_id, nome, email);
+
+            clientes.push(cliente);
+            proximo_id++;
+
+            alert("Cliente cadastrado!");
+
+            limpar_campos();
+            listar_clientes();
+        }
+
+        function salvar_cliente() {
+
+            let dados = JSON.stringify(clientes, null, 4);
+
+            let arquivo = new Blob([dados], {
+                type: "application/json"
+            });
+
+            let link = document.createElement("a");
+
+            link.href = URL.createObjectURL(arquivo);
+            link.download = "clientes.json";
+
+            link.click();
+
+            URL.revokeObjectURL(link.href);
+        }
+
+        function cadastrar_clientes() {
+
+            let quantidade = parseInt(
+                prompt("Quantos clientes deseja cadastrar?")
+            );
+
+            if (isNaN(quantidade) || quantidade <= 0) {
+                alert("Quantidade inválida!");
+                return;
+            }
+
+            for (let i = 0; i < quantidade; i++) {
+
+                let nome = prompt("Digite o nome:");
+                let email = prompt("Digite o email:");
+
+                if (nome && email) {
+                    let cliente = new Cliente(
+                        proximo_id, nome, email
+                    );
+
+                    clientes.push(cliente);
+                    proximo_id++;
+                }
+            }
+
+            listar_clientes();
+            salvar_cliente();
+        }
+
+        function listar_clientes() {
+
+            let lista = document.getElementById("lista");
+
+            lista.innerHTML = "";
+
+            clientes.forEach(function(cliente) {
+
+                let opcao = document.createElement("option");
+
+                opcao.value = cliente.id;
+                opcao.textContent =
+                    cliente.id + " - " + cliente.nome;
+
+                lista.appendChild(opcao);
+            });
+        }
+
+        function buscar_cliente() {
+
+            let busca = document.getElementById("busca").value;
+
+            let resultado = clientes.filter(function(cliente) {
+
+                return cliente.nome.toLowerCase().includes(
+                    busca.toLowerCase()
+                ) || cliente.id.toString() == busca;
+            });
+
+            if (resultado.length == 0) {
+                alert("Cliente não encontrado!");
+                return;
+            }
+
+            let mensagem = "";
+
+            resultado.forEach(function(cliente) {
+
+                mensagem +=
+                    "ID: " + cliente.id +
+                    "\nNome: " + cliente.nome +
+                    "\nEmail: " + cliente.email +
+                    "\n\n";
+            });
+
+            alert(mensagem);
+
+            if (resultado.length == 1) {
+
+                document.getElementById("nome").value =
+                    resultado[0].nome;
+
+                document.getElementById("email").value =
+                    resultado[0].email;
+
+                document.getElementById("lista").value =
+                    resultado[0].id;
+            }
+        }
+
+        function selecionar_cliente() {
+
+            let id = document.getElementById("lista").value;
+
+            let cliente = clientes.find(function(c) {
+                return c.id == id;
+            });
+
+            if (cliente) {
+
+                document.getElementById("nome").value =
+                    cliente.nome;
+
+                document.getElementById("email").value =
+                    cliente.email;
+            }
+        }
+
+        function limpar_campos() {
+
+            document.getElementById("nome").value = "";
+            document.getElementById("email").value = "";
+        }
+
+        // Limpar os dados no início
+        clientes = [];
+        proximo_id = 1;
+
+        listar_clientes();
+
+    </script>
+
+</body>
+</html>
